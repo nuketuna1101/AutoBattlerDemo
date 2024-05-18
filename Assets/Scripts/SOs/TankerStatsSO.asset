@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bd54cd4d6f8b134c9c650ebd9705ba3, type: 3}
+  m_Name: TankerStatsSO
+  m_EditorClassIdentifier: 
+  health: 400
+  attackDamage: 5
+  attackRange: 1
+  attackCooltime: 1.5
+  skillRange: 1
+  skillCooltime: 3
+  respawnCycle: 5
