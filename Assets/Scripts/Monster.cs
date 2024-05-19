@@ -2,55 +2,59 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Monster : MonoBehaviour
+public abstract class Monster : MonoBehaviour
 {
-
+    [SerializeField]
+    private MonsterStatsSO monsterStatsSO;
+    protected float respawnCycle;
+    protected int health;
+    protected int attackDamage;
+    public float attackCooltime;
+    public float attackRange;
     //
-    private int health;
-    private int attackDamage;
-    private float attackNumberPerSecond;
-    private float attackRange = 1.0f;
-    //
-    private float respawnCycle = 5.0f;
 
     // 추적 관련
-    private bool isOnTrack = false;
-    private float sightRange = 5;
-    private float trackSpeed = 1.0f;
-
-
-
-    //
+    public float sightRange = 5.0f;
+    public float trackSpeed = 1.0f;
     public Animator anim;
     public SpriteRenderer spriter;
 
-    void Start()
+    public IMonsterState myState;
+
+    protected virtual void Start()
     {
         anim = this.GetComponent<Animator>();
-        //rigid = this.GetComponent<Rigidbody2D>();
         spriter = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
+        //
+        InitStatFromSO();
         //
         BattleManager.Instance.RegisterMonster(this);
         //
-        //TransitionState(new IdleState(this));
+        TransitionState(new MIdleState(this));
+    }
+    protected void InitStatFromSO()
+    {
+        respawnCycle = monsterStatsSO.respawnCycle;
+        health = monsterStatsSO.health;
+        attackDamage = monsterStatsSO.attackDamage;
+        attackCooltime = monsterStatsSO.attackCooltime;
+        attackRange = monsterStatsSO.attackRange;
     }
 
-    private void Update()
+    public void TransitionState(IMonsterState nextState)
     {
-        //Debug.Log(" CURRENT STATE : " + myState);
+        if (myState != null) myState.Exit();
+        myState = nextState;
+        myState.Enter();
     }
-    public void TransitionState(IState nextState)
-    {
-        //if (myState != null)            myState.Exit();
-        //myState = nextState;
-        //myState.Enter();
-    }
-    public void SetAnimParam(string paramName, bool boolVal)
+    public void SetAnimBool(string paramName, bool boolVal)
     {
         anim.SetBool(paramName, boolVal);
     }
-    public void SetAnimParam(string paramName)
+    public void SetAnimTrigger(string paramName)
     {
         anim.SetTrigger(paramName);
     }
+    protected abstract void BasicAttack();
+    public abstract void BeAttacked(int damage);
 }

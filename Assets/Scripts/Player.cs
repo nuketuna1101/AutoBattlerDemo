@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
-public class Player : MonoBehaviour
+public abstract class Player : MonoBehaviour
 {
     // 모든 플레이어블 캐릭터에 대한 부모 클래스
-    private float respawnCycle = 5.0f;
-    private int health = 400;
-    private int attackDamage = 5;
-    public float attackRange = 1.0f;
-    public float attackCooltime = 1.5f;
-    private float skillRange = 1.0f;
-    public float skillCooltime = 3.0f;
+    [SerializeField]
+    private PlayerStatsSO playerStatsSO;
+    private float respawnCycle;
+    private int health;
+    private int attackDamage;
+    public float attackRange;
+    public float attackCooltime;
+    private float skillRange;
+    public float skillCooltime;
 
     // 추적 관련
     public float sightRange = 5.0f;
@@ -20,46 +22,52 @@ public class Player : MonoBehaviour
     public Animator anim;
     public SpriteRenderer spriter;
 
-    public IState myState;
+    public IPlayerState myState;
 
     void Start()
     {
         anim = this.GetComponent<Animator>();
         spriter = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
-        //
+        InitStatFromSO();
         BattleManager.Instance.RegisterPlayer(this);
-        //
-        TransitionState(new IdleState(this));
+        TransitionState(new PIdleState(this));
     }
-    
-    private void Update()
+    protected void InitStatFromSO()
     {
-        DebugOpt.Log(" CURRENT STATE : " + myState);
-    }  
-    public void TransitionState(IState nextState)
+        // SO로부터 스탯 정보 초기화
+        respawnCycle = playerStatsSO.respawnCycle;
+        health = playerStatsSO.health;
+        attackDamage = playerStatsSO.attackDamage;
+        attackRange = playerStatsSO.attackRange;
+        attackCooltime = playerStatsSO.attackCooltime;
+        skillRange = playerStatsSO.skillRange;
+        skillCooltime = playerStatsSO.skillCooltime;
+    }
+    public void TransitionState(IPlayerState nextState)
     {
-        if(myState != null)
-            myState.Exit();
+        if(myState != null) myState.Exit();
         myState = nextState;
         myState.Enter();
     }
-    public void SetAnimParam(string paramName, bool boolVal)
+    public void SetAnimBool(string paramName, bool boolVal)
     {
         anim.SetBool(paramName, boolVal);
     }
-    public void SetAnimParam(string paramName)
+    public void SetAnimTrigger(string paramName)
     {
         anim.SetTrigger(paramName);
     }
 
 
-    public void BasicAttack(Monster monster)
+    protected void BasicAttack()
     {
+        DebugOpt.Log(this + " BasicAttack called!");
+        Monster targetMonster = myState.TargetMonster;
+        if (targetMonster == null) return;
 
+        /* logic */
+        BattleManager.Instance.AttackFromPlayerToMonster(this, targetMonster, attackDamage);
     }
-    public void CastSkill(Monster monster)
-    {
-
-    }
+    protected abstract void CastSkill(Monster monster);
 
 }
