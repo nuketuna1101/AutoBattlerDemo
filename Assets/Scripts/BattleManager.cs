@@ -21,7 +21,7 @@ public class BattleManager : Singleton<BattleManager>
     {
         if (player == null || monster == null) return;
 
-        //_Player.BeAttacked(damage);
+        player.BeAttacked(damage);
     }
 
     /// <summary>

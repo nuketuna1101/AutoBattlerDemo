@@ -67,7 +67,6 @@ public class PAttackState : IPlayerState
             yield return null; // 다음 프레임까지 대기
             if (isSkillReady)
             {
-                //player.CastSkill(targetMonster);
                 player.SetAnimTrigger("CastSkill");
                 DebugOpt.Log("CastSkill! " + Time.time);
                 isSkillReady = false;
@@ -75,7 +74,6 @@ public class PAttackState : IPlayerState
             }
             if (isAttackReady)
             {
-                //player.BasicAttack(targetMonster);
                 player.SetAnimTrigger("BasicAttack");
                 DebugOpt.Log("BasicAttack! " + Time.time);
                 isAttackReady = false;

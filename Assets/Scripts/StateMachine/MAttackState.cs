@@ -70,7 +70,6 @@ public class MAttackState : IMonsterState
             yield return null; // 다음 프레임까지 대기
             if (isAttackReady)
             {
-                //monster.BasicAttack(targetPlayer);
                 monster.SetAnimTrigger("BasicAttack");
                 DebugOpt.Log("BasicAttack! " + Time.time);
                 isAttackReady = false;

@@ -10,7 +10,7 @@ public abstract class Player : MonoBehaviour
     private PlayerStatsSO playerStatsSO;
     private float respawnCycle;
     private int health;
-    private int attackDamage;
+    protected int attackDamage;
     public float attackRange;
     public float attackCooltime;
     private float skillRange;
@@ -61,13 +61,14 @@ public abstract class Player : MonoBehaviour
 
     protected void BasicAttack()
     {
-        DebugOpt.Log(this + " BasicAttack called!");
         Monster targetMonster = myState.TargetMonster;
         if (targetMonster == null) return;
-
-        /* logic */
         BattleManager.Instance.AttackFromPlayerToMonster(this, targetMonster, attackDamage);
     }
-    protected abstract void CastSkill(Monster monster);
-
+    protected abstract void CastSkill();
+    public virtual void BeAttacked(int damage)
+    {
+        health -= damage;
+        SetAnimTrigger("BeAttacked");
+    }
 }

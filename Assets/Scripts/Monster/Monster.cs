@@ -55,6 +55,11 @@ public abstract class Monster : MonoBehaviour
     {
         anim.SetTrigger(paramName);
     }
-    protected abstract void BasicAttack();
+    public abstract void BasicAttack();
     public abstract void BeAttacked(int damage);
+    protected abstract void Die();
+    public void ReturnToPool()
+    {
+        MonsterPoolManager.ReturnToPool(this.gameObject);
+    }
 }
