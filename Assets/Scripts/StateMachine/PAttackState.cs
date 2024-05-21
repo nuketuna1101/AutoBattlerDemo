@@ -8,8 +8,9 @@ public class PAttackState : IPlayerState
 {
     private Player player;
     private Monster targetMonster;      public Monster TargetMonster { get { return targetMonster; } }
-    private Coroutine escapeCoroutine;
     private Coroutine attackCoroutine;
+    private Coroutine attackCooldownCoroutine;
+    private Coroutine skillCooldownCoroutine;
 
     private bool isAttackReady = true;   // 일반 공격 준비 여부
     private bool isSkillReady = false;  // 특수 공격 준비 여부
@@ -21,63 +22,54 @@ public class PAttackState : IPlayerState
     }
     public void Enter()
     {
-        if (escapeCoroutine != null)
-        {
-            player.StopCoroutine(escapeCoroutine);
-        }
-        escapeCoroutine = player.StartCoroutine(EscapeRoutine());
-
-        if (attackCoroutine != null)
-        {
-            player.StopCoroutine(attackCoroutine);
-        }
-        attackCoroutine = player.StartCoroutine(AttackRoutine());
+        CoroutineHelper.RestartCor(player, ref attackCoroutine, AttackRoutine());
     }
     public void Exit()
     {
-        if (escapeCoroutine != null)
-        {
-            player.StopCoroutine(escapeCoroutine);
-            escapeCoroutine = null;
-        }
-        if (attackCoroutine != null)
-        {
-            player.StopCoroutine(attackCoroutine);
-            attackCoroutine = null;
-        }
-    }
-    private IEnumerator EscapeRoutine()
-    {
-        while (true)
-        {
-            if (targetMonster == null)
-            {
-                player.TransitionState(new PIdleState(player));
-                yield break; // 코루틴 종료
-            }
-
-            yield return null;
-        }
+        CoroutineHelper.StopCor(player, ref attackCoroutine);
+        CoroutineHelper.StopCor(player, ref attackCooldownCoroutine);
+        CoroutineHelper.StopCor(player, ref skillCooldownCoroutine);
+        targetMonster = null;
+        player.ResetAnimTrigger("CastSkill");
+        player.ResetAnimTrigger("BasicAttack");
     }
     private IEnumerator AttackRoutine()
     {
-        player.StartCoroutine(SkillCoolDownRoutine());
+        CoroutineHelper.RestartCor(player, ref skillCooldownCoroutine, SkillCoolDownRoutine());
         while (true)
         {
-            yield return null; // 다음 프레임까지 대기
+            yield return null;
+            // 공격타겟 계속 감지. 없으면 idle로 전환.
+            if (targetMonster == null || !targetMonster.gameObject.activeInHierarchy)
+            {
+                DebugOpt.Log("EscapeRoutine called");
+                player.TransitionState(new PIdleState(player));
+                yield break;
+            }
+            // 공격타겟 감지, 시야와 공격사거리 따라 추적내지는 idle 전환
+            float distance = Vector2.Distance(player.transform.position, targetMonster.transform.position);
+            if (distance > player.attackRange && distance <= player.sightRange)
+            {
+                player.TransitionState(new PMoveState(player, targetMonster));
+                yield break;
+            }
+            else if (distance > player.sightRange)
+            {
+                player.TransitionState(new PIdleState(player));
+                yield break;
+            }
+            // 스킬과 공격속도에 따른 공격로직
             if (isSkillReady)
             {
                 player.SetAnimTrigger("CastSkill");
-                DebugOpt.Log("CastSkill! " + Time.time);
                 isSkillReady = false;
-                player.StartCoroutine(SkillCoolDownRoutine());
+                CoroutineHelper.RestartCor(player, ref skillCooldownCoroutine, SkillCoolDownRoutine());
             }
             if (isAttackReady)
             {
                 player.SetAnimTrigger("BasicAttack");
-                DebugOpt.Log("BasicAttack! " + Time.time);
                 isAttackReady = false;
-                player.StartCoroutine(AttackCoolDownRoutine());
+                CoroutineHelper.RestartCor(player, ref attackCooldownCoroutine, AttackCoolDownRoutine());
             }
         }
     }
@@ -91,5 +83,4 @@ public class PAttackState : IPlayerState
         yield return new WaitForSeconds(player.skillCooltime);
         isSkillReady = true;
     }
-    
 }

@@ -57,8 +57,10 @@ public abstract class Player : MonoBehaviour
     {
         anim.SetTrigger(paramName);
     }
-
-
+    public void ResetAnimTrigger(string paramName)
+    {
+        anim.ResetTrigger(paramName);
+    }
     protected void BasicAttack()
     {
         Monster targetMonster = myState.TargetMonster;
@@ -69,6 +71,12 @@ public abstract class Player : MonoBehaviour
     public virtual void BeAttacked(int damage)
     {
         health -= damage;
+        if (health <= 0)
+            Die();
         SetAnimTrigger("BeAttacked");
+    }
+    protected virtual void Die()
+    {
+        SetAnimTrigger("Death");
     }
 }

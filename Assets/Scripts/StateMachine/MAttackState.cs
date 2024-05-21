@@ -16,8 +16,6 @@ public class MAttackState : IMonsterState
 
     public MAttackState(Monster monster, Player targetPlayer)
     {
-        DebugOpt.Log("NULL CHECK : " + (monster == null));
-
         this.monster = monster;
         this.targetPlayer = targetPlayer;
     }
@@ -71,7 +69,7 @@ public class MAttackState : IMonsterState
             if (isAttackReady)
             {
                 monster.SetAnimTrigger("BasicAttack");
-                DebugOpt.Log("BasicAttack! " + Time.time);
+                //DebugOpt.Log("BasicAttack! " + Time.time);
                 isAttackReady = false;
                 monster.StartCoroutine(AttackCoolDownRoutine());
             }

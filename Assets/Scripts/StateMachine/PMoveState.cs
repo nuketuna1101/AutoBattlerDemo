@@ -18,25 +18,18 @@ public class PMoveState : IPlayerState
     public void Enter()
     {
         player.SetAnimBool("MoveState", true);
-        if (moveCoroutine != null)
-        {
-            player.StopCoroutine(moveCoroutine);
-        }
-        moveCoroutine = player.StartCoroutine(MoveRoutine());
+        CoroutineHelper.RestartCor(player, ref moveCoroutine, MoveRoutine());
     }
     public void Exit()
     {
         player.SetAnimBool("MoveState", false);
-        if (moveCoroutine != null)
-        {
-            player.StopCoroutine(moveCoroutine);
-            moveCoroutine = null;
-        }
+        CoroutineHelper.StopCor(player, ref moveCoroutine);
     }
     private IEnumerator MoveRoutine()
     {
         while (true)
         {
+            DebugOpt.Log("MoveState");
             Vector2 direction = (targetMonster.transform.position - player.transform.position).normalized;
             // flip logic ÇÊ¿ä
             player.transform.position = Vector2.MoveTowards(player.transform.position, targetMonster.transform.position, player.trackSpeed * Time.deltaTime);

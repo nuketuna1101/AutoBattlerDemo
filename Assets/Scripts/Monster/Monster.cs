@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public abstract class Monster : MonoBehaviour
@@ -56,10 +58,22 @@ public abstract class Monster : MonoBehaviour
         anim.SetTrigger(paramName);
     }
     public abstract void BasicAttack();
-    public abstract void BeAttacked(int damage);
-    protected abstract void Die();
+    public virtual void BeAttacked(int damage)
+    {
+        health -= damage;
+        SetAnimTrigger("BeAttacked");
+        if (health <= 0)
+            Die();
+    }
+
+
+    protected virtual void Die()
+    {
+        SetAnimTrigger("Death");
+        this.TransitionState(new MDeathState(this));
+    }
     public void ReturnToPool()
     {
-        MonsterPoolManager.ReturnToPool(this.gameObject);
+        //MonsterPoolManager.ReturnToPool(this.gameObject);
     }
 }

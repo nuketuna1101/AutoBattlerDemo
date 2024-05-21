@@ -45,6 +45,16 @@ public class BattleManager : Singleton<BattleManager>
         players.Add(player);
     }
 
+    public void DeregisterMonster(Monster monster)
+    {
+        monsters.Remove(monster);
+    }
+    // 씬에서 player 관리 위해
+    public void DeregisterPlayer(Player player)
+    {
+        players.Remove(player);
+    }
+
     // 가장 가까운 대상을 탐지하되, 탐지 범위 내에 있는 대상에 한함. 탐지 모두 안된다면 null 리턴.
 
     public Player FindNearestPlayer(Monster monster)
@@ -82,4 +92,7 @@ public class BattleManager : Singleton<BattleManager>
         }
         return nearest;
     }
+
+
+    // pool로 회수시킬 때 battlemanager에서도 회수 작업
 }

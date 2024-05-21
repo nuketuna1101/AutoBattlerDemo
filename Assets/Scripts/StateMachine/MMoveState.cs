@@ -12,34 +12,23 @@ public class MMoveState : IMonsterState
     private Coroutine moveCoroutine;
     public MMoveState(Monster monster, Player targetPlayer)
     {
-        DebugOpt.Log("NULL CHECK : " + (monster == null));
-
         this.monster = monster;
         this.targetPlayer = targetPlayer;
     }
     public void Enter()
     {
         monster.SetAnimBool("MoveState", true);
-        if (moveCoroutine != null)
-        {
-            monster.StopCoroutine(moveCoroutine);
-        }
-        moveCoroutine = monster.StartCoroutine(MoveRoutine());
+        CoroutineHelper.RestartCor(monster, ref moveCoroutine, MoveRoutine());
     }
     public void Exit()
     {
         monster.SetAnimBool("MoveState", false);
-        if (moveCoroutine != null)
-        {
-            monster.StopCoroutine(moveCoroutine);
-            moveCoroutine = null;
-        }
+        CoroutineHelper.StopCor(monster, ref moveCoroutine);
     }
     private IEnumerator MoveRoutine()
     {
         while (true)
         {
-            DebugOpt.Log("NULL CHECK : " + (targetPlayer == null));
             Vector2 direction = (targetPlayer.transform.position - monster.transform.position).normalized;
             // flip logic ÇÊ¿ä
             monster.transform.position = Vector2.MoveTowards(monster.transform.position, targetPlayer.transform.position, monster.trackSpeed * Time.deltaTime);

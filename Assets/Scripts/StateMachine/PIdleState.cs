@@ -16,26 +16,19 @@ public class PIdleState : IPlayerState
 
     public void Enter()
     {
-        if (idleCoroutine != null)
-        {
-            player.StopCoroutine(idleCoroutine);
-        }
-        idleCoroutine = player.StartCoroutine(IdleRoutine());
+        CoroutineHelper.RestartCor(player, ref idleCoroutine, IdleRoutine());
     }
 
     public void Exit()
     {
-        if (idleCoroutine != null)
-        {
-            player.StopCoroutine(idleCoroutine);
-            idleCoroutine = null;
-        }
+        CoroutineHelper.StopCor(player, ref idleCoroutine);
     }
 
     private IEnumerator IdleRoutine()
     {
         while (true)
         {
+            DebugOpt.Log("IdleState");
             Monster monster = BattleManager.Instance.FindNearestMonster(player);
             if (monster != null)
             {

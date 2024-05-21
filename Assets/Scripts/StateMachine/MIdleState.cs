@@ -13,27 +13,15 @@ public class MIdleState : IMonsterState
     public MIdleState(Monster monster)
     {
         this.monster = monster;
-        DebugOpt.Log("NULL CHECK : " + (monster == null));
     }
-
     public void Enter()
     {
-        if (idleCoroutine != null)
-        {
-            monster.StopCoroutine(idleCoroutine);
-        }
-        idleCoroutine = monster.StartCoroutine(IdleRoutine());
+        CoroutineHelper.RestartCor(monster, ref idleCoroutine, IdleRoutine());
     }
-
     public void Exit()
     {
-        if (idleCoroutine != null)
-        {
-            monster.StopCoroutine(idleCoroutine);
-            idleCoroutine = null;
-        }
+        CoroutineHelper.StopCor(monster, ref idleCoroutine);
     }
-
     private IEnumerator IdleRoutine()
     {
         while (true)
@@ -48,5 +36,4 @@ public class MIdleState : IMonsterState
             //yield return new WaitForSeconds(0.1f);
         }
     }
-
 }
