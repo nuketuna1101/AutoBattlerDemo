@@ -9,11 +9,11 @@ public abstract class Player : MonoBehaviour
     [SerializeField]
     private PlayerStatsSO playerStatsSO;
     private float respawnCycle;
-    private int health;
-    protected int attackDamage;
+    private float health;
+    protected float attackDamage;
     public float attackRange;
     public float attackCooltime;
-    private float skillRange;
+    public float skillRange;
     public float skillCooltime;
 
     // 추적 관련
@@ -68,7 +68,7 @@ public abstract class Player : MonoBehaviour
         BattleManager.Instance.AttackFromPlayerToMonster(this, targetMonster, attackDamage);
     }
     protected abstract void CastSkill();
-    public virtual void BeAttacked(int damage)
+    public virtual void BeAttacked(float damage)
     {
         health -= damage;
         if (health <= 0)

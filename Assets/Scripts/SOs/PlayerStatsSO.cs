@@ -6,8 +6,8 @@ using UnityEngine;
 public class PlayerStatsSO : ScriptableObject
 {
     public float respawnCycle;
-    public int health;
-    public int attackDamage;
+    public float health;
+    public float attackDamage;
     public float attackRange;
     public float attackCooltime;
     public float skillRange;

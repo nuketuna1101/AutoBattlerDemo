@@ -8,9 +8,9 @@ public class MAttackState : IMonsterState
 {
     private Monster monster;
     private Player targetPlayer;    public Player TargetPlayer { get { return targetPlayer; } }
-
-    private Coroutine escapeCoroutine;
     private Coroutine attackCoroutine;
+    private Coroutine attackCooldownCoroutine;
+    private Coroutine skillCooldownCoroutine;
 
     private bool isAttackReady = true;   // 일반 공격 준비 여부
 
@@ -21,57 +21,46 @@ public class MAttackState : IMonsterState
     }
     public void Enter()
     {
-        if (escapeCoroutine != null)
-        {
-            monster.StopCoroutine(escapeCoroutine);
-        }
-        escapeCoroutine = monster.StartCoroutine(EscapeRoutine());
-
-        if (attackCoroutine != null)
-        {
-            monster.StopCoroutine(attackCoroutine);
-        }
-        attackCoroutine = monster.StartCoroutine(AttackRoutine());
+        CoroutineHelper.RestartCor(monster, ref attackCoroutine, AttackRoutine());
     }
     public void Exit()
     {
-        if (escapeCoroutine != null)
-        {
-            monster.StopCoroutine(escapeCoroutine);
-            escapeCoroutine = null;
-        }
-        if (attackCoroutine != null)
-        {
-            monster.StopCoroutine(attackCoroutine);
-            attackCoroutine = null;
-        }
+        CoroutineHelper.StopCor(monster, ref attackCoroutine);
+        CoroutineHelper.StopCor(monster, ref attackCooldownCoroutine);
+        CoroutineHelper.StopCor(monster, ref skillCooldownCoroutine);
+        targetPlayer = null;
+        monster.ResetAnimTrigger("CastSkill");
+        monster.ResetAnimTrigger("BasicAttack");
     }
-    private IEnumerator EscapeRoutine()
-    {
-        while (true)
-        {
-            if (targetPlayer == null)
-            {
-                monster.TransitionState(new MIdleState(monster));
-                yield break; // 코루틴 종료
-            }
-
-            yield return null;
-        }
-    }
-
-
     private IEnumerator AttackRoutine()
     {
         while (true)
         {
-            yield return null; // 다음 프레임까지 대기
+            yield return null;
+            // 공격타겟 계속 감지. 없으면 idle로 전환.
+            if (targetPlayer == null || !targetPlayer.gameObject.activeInHierarchy)
+            {
+                monster.TransitionState(new MIdleState(monster));
+                yield break;
+            }
+            // 공격타겟 감지, 시야와 공격사거리 따라 추적내지는 idle 전환
+            float distance = Vector2.Distance(monster.transform.position, targetPlayer.transform.position);
+            if (distance > monster.attackRange && distance <= monster.sightRange)
+            {
+                monster.TransitionState(new MMoveState(monster, targetPlayer));
+                yield break;
+            }
+            else if (distance > monster.sightRange)
+            {
+                monster.TransitionState(new MIdleState(monster));
+                yield break;
+            }
+            // 공격속도에 따른 공격로직
             if (isAttackReady)
             {
                 monster.SetAnimTrigger("BasicAttack");
-                //DebugOpt.Log("BasicAttack! " + Time.time);
                 isAttackReady = false;
-                monster.StartCoroutine(AttackCoolDownRoutine());
+                CoroutineHelper.RestartCor(monster, ref attackCooldownCoroutine, AttackCoolDownRoutine());
             }
         }
     }

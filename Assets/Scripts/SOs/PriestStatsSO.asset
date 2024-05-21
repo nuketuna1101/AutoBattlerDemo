@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3bd54cd4d6f8b134c9c650ebd9705ba3, type: 3}
-  m_Name: MeleeDealerStatsSO
+  m_Name: PriestStatsSO
   m_EditorClassIdentifier: 
-  health: 200
+  health: 100
   attackDamage: 10
-  attackRange: 1
+  attackRange: 4
   attackCooltime: 1
-  skillRange: 2
-  skillCooltime: 3
+  skillRange: 4
+  skillCooltime: 6
   respawnCycle: 5

@@ -662,6 +662,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f3f4db6d0cc33347bd8589ac2f30aab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerStatsSO: {fileID: 11400000, guid: c7cc0478ecd56a8419cbe59e3714bba2, type: 2}
+  attackRange: 0
+  attackCooltime: 0
+  skillCooltime: 0
+  sightRange: 5
+  trackSpeed: 1
+  anim: {fileID: 0}
+  spriter: {fileID: 0}
 --- !u!1 &1000012730742446
 GameObject:
   m_ObjectHideFlags: 0

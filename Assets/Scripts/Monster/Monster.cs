@@ -9,8 +9,8 @@ public abstract class Monster : MonoBehaviour
     [SerializeField]
     private MonsterStatsSO monsterStatsSO;
     protected float respawnCycle;
-    protected int health;
-    protected int attackDamage;
+    protected float health;
+    protected float attackDamage;
     public float attackCooltime;
     public float attackRange;
     //
@@ -57,8 +57,12 @@ public abstract class Monster : MonoBehaviour
     {
         anim.SetTrigger(paramName);
     }
+    public void ResetAnimTrigger(string paramName)
+    {
+        anim.ResetTrigger(paramName);
+    }
     public abstract void BasicAttack();
-    public virtual void BeAttacked(int damage)
+    public virtual void BeAttacked(float damage)
     {
         health -= damage;
         SetAnimTrigger("BeAttacked");

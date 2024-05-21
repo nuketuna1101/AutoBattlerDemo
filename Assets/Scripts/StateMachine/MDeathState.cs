@@ -14,19 +14,11 @@ public class MDeathState : IMonsterState
     }
     public void Enter()
     {
-        if (deathCoroutine != null)
-        {
-            monster.StopCoroutine(deathCoroutine);
-        }
-        deathCoroutine = monster.StartCoroutine(DeathCoroutine());
+        CoroutineHelper.RestartCor(monster, ref deathCoroutine, DeathCoroutine());
     }
     public void Exit()
     {
-        if (deathCoroutine != null)
-        {
-            monster.StopCoroutine(deathCoroutine);
-            deathCoroutine = null;
-        }
+        CoroutineHelper.StopCor(monster, ref deathCoroutine);
     }
     private IEnumerator DeathCoroutine()
     {

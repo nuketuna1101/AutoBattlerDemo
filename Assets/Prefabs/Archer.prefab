@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4000010464396976}
   - component: {fileID: 95000013227593822}
+  - component: {fileID: 8086864454209461693}
   m_Layer: 0
   m_Name: Archer
   m_TagString: Untagged
@@ -54,6 +55,26 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8086864454209461693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000010854855540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e58d25e802e28a4790e2bc3c39286bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerStatsSO: {fileID: 11400000, guid: 721098118b05c2445af750dc33313fb0, type: 2}
+  attackRange: 0
+  attackCooltime: 0
+  skillCooltime: 0
+  sightRange: 5
+  trackSpeed: 1
+  anim: {fileID: 0}
+  spriter: {fileID: 0}
 --- !u!1 &1000011210365404
 GameObject:
   m_ObjectHideFlags: 0

@@ -61,6 +61,7 @@ public class PAttackState : IPlayerState
             // 스킬과 공격속도에 따른 공격로직
             if (isSkillReady)
             {
+                DebugOpt.Log("me: " + player.name + " cast skill ");
                 player.SetAnimTrigger("CastSkill");
                 isSkillReady = false;
                 CoroutineHelper.RestartCor(player, ref skillCooldownCoroutine, SkillCoolDownRoutine());

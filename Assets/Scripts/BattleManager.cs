@@ -6,23 +6,69 @@ using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class BattleManager : Singleton<BattleManager>
 {
+    // 임시 빅토리 코드
+    public void PlayerVictory()
+    {
+        DebugOpt.Log("BattleManager:  PlayerVictory");
+        foreach (var player in players)
+        {
+            player.SetAnimTrigger("Victory");
+        }
+    }
+
+    public void KillPlayers()
+    {
+        DebugOpt.Log("BattleManager:  KillPlayers");
+        foreach (var player in players)
+        {
+            player.SetAnimTrigger("Death");
+        }
+    }
+    public void PlayersCastSkill()
+    {
+        DebugOpt.Log("BattleManager:  PlayersCastSkill");
+        foreach (var player in players)
+        {
+            player.SetAnimTrigger("CastSkill");
+        }
+    }
+
     /// <summary>
     /// 공격 판정 관한 매니징
     /// </summary>
 
-    public void AttackFromPlayerToMonster(Player player, Monster monster, int damage)
+    public void AttackFromPlayerToMonster(Player player, Monster monster, float damage)
     {
         if (player == null || monster == null)    return;
-
+        
         monster.BeAttacked(damage);
     }
 
-    public void AttackFromMonsterToPlayer(Monster monster, Player player, int damage)
+    public void AttackFromMonsterToPlayer(Monster monster, Player player, float damage)
     {
         if (player == null || monster == null) return;
 
         player.BeAttacked(damage);
     }
+
+    // 임시 범위 공격용
+    ////////////////////////
+    public void AttackAreaFromPlayer(Player player, float skillRange, float damage)
+    {
+        // skill Range 내 모든 monster 검색해서
+        foreach (Monster monster in monsters)
+        {
+            if (isInArea(monster, player.transform.position, skillRange))
+                monster.BeAttacked(damage);
+        }
+    }
+
+    private bool isInArea(Monster monster, Vector3 centerPoint, float range)
+    {
+        float distance = Vector2.Distance(monster.transform.position, centerPoint);
+        return (distance <= range);
+    }
+    ////////////////////////
 
     /// <summary>
     /// 추적과 관련한 매니징
@@ -92,7 +138,4 @@ public class BattleManager : Singleton<BattleManager>
         }
         return nearest;
     }
-
-
-    // pool로 회수시킬 때 battlemanager에서도 회수 작업
 }
