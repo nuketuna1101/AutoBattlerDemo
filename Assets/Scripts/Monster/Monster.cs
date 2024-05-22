@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public abstract class Monster : MonoBehaviour
 {
+    [Header("Stats")]
     [SerializeField]
     private MonsterStatsSO monsterStatsSO;
     protected float respawnCycle;
@@ -14,17 +15,18 @@ public abstract class Monster : MonoBehaviour
     protected float attackDamage;
     public float attackCooltime;
     public float attackRange;
-    //
     protected float maxHealth;
 
-
-    // 추적 관련
+    [Header("Tracking")]
     public float sightRange = 5.0f;
     public float trackSpeed = 1.0f;
+
+    [Header("Main Components")]
     public Animator anim;
     public SpriteRenderer spriter;
     public IMonsterState myState;
 
+    [Header("Floating HP bar UI")]
     public GameObject HPbarPrefab;
     private Slider HPbar;
     private Coroutine updateHPbarCoroutine;
@@ -36,16 +38,12 @@ public abstract class Monster : MonoBehaviour
     }
     private void OnEnable()
     {
+        // 풀링을 통해 이용하기 때문에 활성화 부분 코드는 초기화 부분.
+        // 초기화 항목: 스탯 능력치, 배틀매니저 등록, 기본idle 상태 진입, HP Bar UI 할당
         InitStatFromSO();
+        InitHPUI();
         BattleManager.Instance.RegisterMonster(this);
         TransitionState(new MIdleState(this));
-
-        Canvas canvas = FindObjectOfType<Canvas>();
-        HPbar = HPbarPoolManager.GetFromPool().GetComponent<Slider>();
-        HPbar.transform.SetParent(canvas.transform);
-        HPbar.maxValue = maxHealth;
-        HPbar.value = health;
-        CoroutineHelper.RestartCor(this, ref updateHPbarCoroutine, UpdateHPbarRoutine());
     }
     protected void InitStatFromSO()
     {
@@ -56,7 +54,16 @@ public abstract class Monster : MonoBehaviour
         attackRange = monsterStatsSO.attackRange;
         maxHealth = monsterStatsSO.health;
     }
-
+    protected void InitHPUI()
+    {
+        // 체력바 풀로부터 체력바 ui를 가져와서 캔버스에 붙인 후, 몬스터 오브젝트에 따라다니도록 코루틴 시작.
+        Canvas canvas = FindObjectOfType<Canvas>();
+        HPbar = HPbarPoolManager.GetFromPool().GetComponent<Slider>();
+        HPbar.transform.SetParent(canvas.transform);
+        HPbar.maxValue = maxHealth;
+        HPbar.value = health;
+        CoroutineHelper.RestartCor(this, ref updateHPbarCoroutine, UpdateHPbarRoutine());
+    }
     public void TransitionState(IMonsterState nextState)
     {
         if (myState != null) myState.Exit();
@@ -104,6 +111,7 @@ public abstract class Monster : MonoBehaviour
 
     private IEnumerator UpdateHPbarRoutine()
     {
+        // 체력바 HP UI가 오브젝트 따라다니는 코루틴. 그리고 현재 체력에 따라 슬라이더 업데이트
         while (true)
         {
             yield return null;
