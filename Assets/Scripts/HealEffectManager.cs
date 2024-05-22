@@ -3,34 +3,24 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class HPbarPoolManager : Singleton<HPbarPoolManager>
+public class HealEffectManager : Singleton<HealEffectManager>
 {
-    /// <summary>
-    /// 몬스터에게 달아줄 HP 체력바 UI
-    /// </summary>
     [SerializeField]
-    private GameObject prefab;                                  // 오브젝트 프리팹
-    [SerializeField]
-    private const int initPoolSize = 5;                           // 초기 풀 사이즈 정의
-    Queue<GameObject> pool = new Queue<GameObject>();              // 아이템 풀로 이용할 큐
-
+    private GameObject healEfxPrefab;
+    Queue<GameObject> pool = new Queue<GameObject>();
+    static Coroutine healEfxCoroutine = null;
     private void Awake()
     {
-        InitPool();
-    }
-    public void InitPool()
-    {
-        for (int i = 0; i < initPoolSize; i++)
-            pool.Enqueue(CreateObj());
+        pool.Enqueue(CreateObj());
     }
     private GameObject CreateObj()
     {
-        var newObj = Instantiate(prefab);
+        var newObj = Instantiate(healEfxPrefab);
         newObj.gameObject.SetActive(false);
         newObj.transform.SetParent(transform);
         return newObj;
     }
-    public static GameObject GetFromPool()
+    private static GameObject GetFromPool()
     {
         // 요청 시 풀에 있는 오브젝트를 할당해준다.
         if (Instance.pool.Count > 0)
@@ -49,12 +39,25 @@ public class HPbarPoolManager : Singleton<HPbarPoolManager>
             return newObj;
         }
     }
-    public static void ReturnToPool(GameObject obj)
+    private static void ReturnToPool(GameObject obj)
     {
         // 오브젝트 비활성화시키고 다시 풀로 복귀시키기
-        //if (obj == null) return;
         obj.gameObject.SetActive(false);
         obj.transform.SetParent(Instance.transform);
         Instance.pool.Enqueue(obj);
+    }
+
+
+    public static void ShowHealEfx(Transform targetTransform)
+    {
+        GameObject obj = GetFromPool();
+        obj.transform.position = targetTransform.position;
+        CoroutineHelper.RestartCor(Instance, ref healEfxCoroutine, HealEfxRoutine(obj));
+    }
+
+    private static IEnumerator HealEfxRoutine(GameObject obj)
+    {
+        yield return new WaitForSeconds(1.0f);
+        ReturnToPool(obj);
     }
 }

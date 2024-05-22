@@ -7,6 +7,11 @@ using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public class MMoveState : IMonsterState
 {
+    /// <summary>
+    /// 몬스터의 이동 상태: 사실 정확히는 추적임. 애초에 추적 대상을 감지하고 move state에 진입함.
+    /// 추적 범위를 벗어나면, idle 상태로 변화
+    /// 추적 후 공격범위 안에 들어오면 공격 상태로 진입
+    /// </summary>
     private Monster monster;
     private Player targetPlayer; public Player TargetPlayer { get { return targetPlayer; } }
     private Coroutine moveCoroutine;

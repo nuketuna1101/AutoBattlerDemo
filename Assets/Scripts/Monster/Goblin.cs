@@ -4,16 +4,9 @@ using UnityEngine;
 
 public class Goblin : Monster
 {
-    /*
-    protected override void Start()
-    {
-        anim = this.transform.GetChild(0).GetComponent<Animator>();
-        spriter = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
-        InitStatFromSO();
-        BattleManager.Instance.RegisterMonster(this);
-        TransitionState(new MIdleState(this));
-    }
-    */
+    /// <summary>
+    /// 몬스터 추상 클래스를 받아 고블린 클래스.
+    /// </summary>
     protected void Awake()
     {
         anim = this.transform.GetChild(0).GetComponent<Animator>();

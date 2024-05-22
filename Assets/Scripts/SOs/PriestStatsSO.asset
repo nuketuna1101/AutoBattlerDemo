@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd54cd4d6f8b134c9c650ebd9705ba3, type: 3}
   m_Name: PriestStatsSO
   m_EditorClassIdentifier: 
+  respawnCycle: 5
   health: 100
   attackDamage: 10
   attackRange: 4
-  attackCooltime: 1
+  attackCooltime: 75
   skillRange: 4
-  skillCooltime: 6
-  respawnCycle: 5
+  skillCooltime: 3

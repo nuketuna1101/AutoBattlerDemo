@@ -36,8 +36,6 @@ public class PIdleState : IPlayerState
                 yield break;
             }
             yield return null;
-            //yield return new WaitForSeconds(0.1f);
         }
     }
-
 }

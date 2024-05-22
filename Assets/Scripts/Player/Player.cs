@@ -5,25 +5,29 @@ using UnityEngine.TextCore.Text;
 
 public abstract class Player : MonoBehaviour
 {
-    // 모든 플레이어블 캐릭터에 대한 부모 클래스
+    /// <summary>
+    /// 모든 플레이어블 캐릭터에 대한 추상 클래스
+    /// </summary>
+    [Header("Stats")]
     [SerializeField]
     private PlayerStatsSO playerStatsSO;
-    //public readonly PlayerClass playerClass;
     public abstract PlayerClass playerClass { get; }
     public float respawnCycle;
-    protected float health;
+    public float health;
     protected float attackDamage;
     public float attackRange;
     public float attackCooltime;
     public float skillRange;
     public float skillCooltime;
+    public float maxHealth;
 
-    // 추적 관련
+    [Header("Tracking")]
     public float sightRange = 5.0f;
     public float trackSpeed = 1.0f;
+
+    [Header("Main Components")]
     public Animator anim;
     public SpriteRenderer spriter;
-
     public IPlayerState myState;
 
     void Awake()
@@ -47,6 +51,7 @@ public abstract class Player : MonoBehaviour
         attackCooltime = playerStatsSO.attackCooltime;
         skillRange = playerStatsSO.skillRange;
         skillCooltime = playerStatsSO.skillCooltime;
+        maxHealth = playerStatsSO.health;
     }
     public void TransitionState(IPlayerState nextState)
     {
@@ -75,7 +80,7 @@ public abstract class Player : MonoBehaviour
     protected abstract void CastSkill();
     public virtual void BeAttacked(float damage)
     {
-        health -= damage;
+        health = (health - damage > 0 ? health - damage : 0);
         if (health > 0)
         {
             SetAnimTrigger("BeAttacked");
@@ -97,5 +102,11 @@ public abstract class Player : MonoBehaviour
         // 부활 타이머 돌리고 오브젝트는 풀로 회수
         BattleManager.Instance.RespawnPlayer(this);
         PlayerPoolManager.ReturnToPool(this.gameObject);
+    }
+    public virtual void BeHealed(float healAmount)
+    {
+        health = (maxHealth > health + healAmount ? health + healAmount : maxHealth);
+        //SetAnimTrigger("BeHealed");
+        HealEffectManager.ShowHealEfx(this.transform);
     }
 }

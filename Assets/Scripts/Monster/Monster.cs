@@ -30,6 +30,7 @@ public abstract class Monster : MonoBehaviour
     public GameObject HPbarPrefab;
     private Slider HPbar;
     private Coroutine updateHPbarCoroutine;
+    private const float HPbarHeight = 1.0f;
 
     protected virtual void Awake()
     {
@@ -115,7 +116,7 @@ public abstract class Monster : MonoBehaviour
         while (true)
         {
             yield return null;
-            Vector3 HPbarPosition = Camera.main.WorldToScreenPoint(new Vector3(transform.position.x, transform.position.y + 1, 0));
+            Vector3 HPbarPosition = Camera.main.WorldToScreenPoint(new Vector3(transform.position.x, transform.position.y + HPbarHeight, 0));
             HPbar.transform.position = HPbarPosition;
             if (HPbar != null)
             {
