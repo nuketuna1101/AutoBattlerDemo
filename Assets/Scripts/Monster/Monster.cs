@@ -27,7 +27,6 @@ public abstract class Monster : MonoBehaviour
     public IMonsterState myState;
 
     [Header("Floating HP bar UI")]
-    public GameObject HPbarPrefab;
     private Slider HPbar;
     private Coroutine updateHPbarCoroutine;
     private const float HPbarHeight = 1.0f;
@@ -130,4 +129,13 @@ public abstract class Monster : MonoBehaviour
         if (HPbar != null)
             HPbarPoolManager.ReturnToPool(HPbar.gameObject);
     }
+
+
+
+
+    public void GetStunned(float duration)
+    {
+        this.TransitionState(new MStunnedState(this, myState.TargetPlayer, myState, duration));
+    }
+
 }

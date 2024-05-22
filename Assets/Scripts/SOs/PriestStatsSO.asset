@@ -16,6 +16,6 @@ MonoBehaviour:
   health: 100
   attackDamage: 10
   attackRange: 4
-  attackCooltime: 75
+  attackCooltime: 1
   skillRange: 4
-  skillCooltime: 3
+  skillCooltime: 6

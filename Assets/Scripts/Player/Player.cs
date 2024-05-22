@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.TextCore.Text;
 
 public abstract class Player : MonoBehaviour
@@ -30,6 +31,15 @@ public abstract class Player : MonoBehaviour
     public SpriteRenderer spriter;
     public IPlayerState myState;
 
+    [Header("Floating HP bar UI")]
+    private Slider HPbar;
+    private Coroutine updateHPbarCoroutine;
+    private const float HPbarHeight = 2.0f;
+
+    [Header("HealEfx")]
+    private Coroutine healEfxCoroutine;
+
+
     void Awake()
     {
         anim = this.GetComponent<Animator>();
@@ -38,6 +48,7 @@ public abstract class Player : MonoBehaviour
     private void OnEnable()
     {
         InitStatFromSO();
+        InitHPUI();
         BattleManager.Instance.RegisterPlayer(this);
         TransitionState(new PIdleState(this));
     }
@@ -52,6 +63,16 @@ public abstract class Player : MonoBehaviour
         skillRange = playerStatsSO.skillRange;
         skillCooltime = playerStatsSO.skillCooltime;
         maxHealth = playerStatsSO.health;
+    }
+    protected void InitHPUI()
+    {
+        // 체력바 풀로부터 체력바 ui를 가져와서 캔버스에 붙인 후, 몬스터 오브젝트에 따라다니도록 코루틴 시작.
+        Canvas canvas = FindObjectOfType<Canvas>();
+        HPbar = PlayerHPbarPoolManager.GetFromPool().GetComponent<Slider>();
+        HPbar.transform.SetParent(canvas.transform);
+        HPbar.maxValue = maxHealth;
+        HPbar.value = health;
+        CoroutineHelper.RestartCor(this, ref updateHPbarCoroutine, UpdateHPbarRoutine());
     }
     public void TransitionState(IPlayerState nextState)
     {
@@ -106,7 +127,49 @@ public abstract class Player : MonoBehaviour
     public virtual void BeHealed(float healAmount)
     {
         health = (maxHealth > health + healAmount ? health + healAmount : maxHealth);
-        //SetAnimTrigger("BeHealed");
-        HealEffectManager.ShowHealEfx(this.transform);
+        StartCoroutine(HealEfxRoutine());
+    }
+    private IEnumerator UpdateHPbarRoutine()
+    {
+        // 체력바 HP UI가 오브젝트 따라다니는 코루틴. 그리고 현재 체력에 따라 슬라이더 업데이트
+        while (true)
+        {
+            yield return null;
+            Vector3 HPbarPosition = Camera.main.WorldToScreenPoint(new Vector3(transform.position.x, transform.position.y + HPbarHeight, 0));
+            HPbar.transform.position = HPbarPosition;
+            if (HPbar != null)
+            {
+                HPbar.value = health;
+            }
+        }
+    }
+    private void OnDisable()
+    {
+        CoroutineHelper.StopCor(this, ref updateHPbarCoroutine);
+        CoroutineHelper.StopCor(this, ref healEfxCoroutine);
+        if (HPbar != null)
+            PlayerHPbarPoolManager.ReturnToPool(HPbar.gameObject);
+    }
+
+
+
+    private IEnumerator HealEfxRoutine()
+    {
+        yield return null;
+        GameObject healEfx = HealEfxPoolManager.GetFromPool();
+        healEfx.transform.position = this.transform.position;
+        StartCoroutine(EfxTrackingRoutine(healEfx));
+        yield return new WaitForSeconds(1.0f);
+        StopCoroutine(EfxTrackingRoutine(healEfx));
+        HealEfxPoolManager.ReturnToPool(healEfx);
+    }
+    private IEnumerator EfxTrackingRoutine(GameObject healEfx)
+    {
+        while (true)
+        {
+            yield return null;
+            Vector3 HPbarPosition = Camera.main.WorldToScreenPoint(new Vector3(transform.position.x, transform.position.y + HPbarHeight, 0));
+            HPbar.transform.position = HPbarPosition;
+        }
     }
 }

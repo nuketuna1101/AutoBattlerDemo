@@ -82,7 +82,10 @@ public class BattleManager : Singleton<BattleManager>
             break;
         }
     }
-
+    public void GiveStunned(Player player, Monster targetMonster, float duration)
+    {
+        targetMonster.GetStunned(duration);
+    }
     // 사용하진 않았지만 넉백 관련 코드
     private void KnockBackFromPlayerToMonster(Player player, Monster monster)
     {
