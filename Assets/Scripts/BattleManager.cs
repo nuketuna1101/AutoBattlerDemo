@@ -71,34 +71,30 @@ public class BattleManager : Singleton<BattleManager>
     ////////////////////////
 
     /// <summary>
-    /// 추적과 관련한 매니징
+    /// 배틀매니저로 인게임에서 존재할 플레이어 캐릭터 및 몬스터에 관한 등록/해제 관리.
     /// 
-    /// 추적에 있어서 최적화 : 사전 거리 필터링 :: 
-    /// 모든 객체와의 거리를 계산하기 전에, 대략적인 거리 필터링을 수행합니다. 예를 들어, 일정 거리 이상 떨어진 객체는 처음부터 제외시킵니다.
+    /// 플레이어든 몬스터든 풀에서 할당/해제와 함께 진행되어야 한다.
     /// </summary>
 
     private List<Monster> monsters = new List<Monster>();
-    private List<Player> players = new List<Player>();
-
-    // 씬에서 monster를 관리하기 위해 ... 차후 monster pool 사용할 때 리팩토링 가능할수도
+    private Player[] players = new Player[4];
     public void RegisterMonster(Monster monster)
     {
         monsters.Add(monster);
     }
-    // 씬에서 player 관리 위해
     public void RegisterPlayer(Player player)
     {
-        players.Add(player);
+        if (player == null) return;
+        players[(int)player.playerClass] = player;
     }
-
     public void DeregisterMonster(Monster monster)
     {
         monsters.Remove(monster);
     }
-    // 씬에서 player 관리 위해
     public void DeregisterPlayer(Player player)
     {
-        players.Remove(player);
+        if (player == null) return;
+        players[(int)player.playerClass] = null;
     }
 
     // 가장 가까운 대상을 탐지하되, 탐지 범위 내에 있는 대상에 한함. 탐지 모두 안된다면 null 리턴.
@@ -109,6 +105,8 @@ public class BattleManager : Singleton<BattleManager>
         Player nearest = null;
         foreach (Player player in players)
         {
+            if (player == null) continue;
+
             float distanceToPlayer = Vector2.Distance(monster.transform.position, player.transform.position);
             if (distanceToPlayer > monster.sightRange) continue; // 사전 필터링
 
@@ -137,5 +135,36 @@ public class BattleManager : Singleton<BattleManager>
             }
         }
         return nearest;
+    }
+
+
+    private Coroutine[] respawnCoroutines = new Coroutine[4];
+
+    public void RespawnPlayer(Player player)
+    {
+        DebugOpt.Log("BattleManager - RespawnPlayer called " + player.name);
+        int index = (int)player.playerClass;
+        CoroutineHelper.RestartCor(this, ref respawnCoroutines[index], RespawnRoutine(player));
+    }
+
+    private IEnumerator RespawnRoutine(Player player)
+    {
+        DebugOpt.Log("BattleManager - RespawnRoutine called " + player.name);
+        yield return new WaitForSeconds(player.respawnCycle);
+        var playerObj = PlayerPoolManager.GetFromPool(player.playerClass);
+        int index = (int)player.playerClass;
+        playerObj.transform.position = new Vector3((index + 1), (index % 2) * (-2), 0.0f);
+    }
+
+
+
+    // 해당 플레이어가 배틀매니저에 포함되어 있는가?
+    public bool isExistingPlayer(Player player)
+    {
+        return (players[(int)player.playerClass] != null);
+    }
+    public bool isExistingMonster(Monster monster)
+    {
+        return (monsters.Contains(monster));
     }
 }

@@ -8,8 +8,10 @@ public abstract class Player : MonoBehaviour
     // 모든 플레이어블 캐릭터에 대한 부모 클래스
     [SerializeField]
     private PlayerStatsSO playerStatsSO;
-    private float respawnCycle;
-    private float health;
+    //public readonly PlayerClass playerClass;
+    public abstract PlayerClass playerClass { get; }
+    public float respawnCycle;
+    protected float health;
     protected float attackDamage;
     public float attackRange;
     public float attackCooltime;
@@ -24,10 +26,13 @@ public abstract class Player : MonoBehaviour
 
     public IPlayerState myState;
 
-    void Start()
+    void Awake()
     {
         anim = this.GetComponent<Animator>();
         spriter = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
+    }
+    private void OnEnable()
+    {
         InitStatFromSO();
         BattleManager.Instance.RegisterPlayer(this);
         TransitionState(new PIdleState(this));
@@ -71,12 +76,26 @@ public abstract class Player : MonoBehaviour
     public virtual void BeAttacked(float damage)
     {
         health -= damage;
-        if (health <= 0)
+        if (health > 0)
+        {
+            SetAnimTrigger("BeAttacked");
+        }
+        else
+        {
             Die();
-        SetAnimTrigger("BeAttacked");
+            // 이미 죽은 플레이어에 대한 몬스터들의 로직 방지. 바로 배틀에서 제외시켜주기.
+            BattleManager.Instance.DeregisterPlayer(this);
+        }
     }
     protected virtual void Die()
     {
         SetAnimTrigger("Death");
+    }
+
+    public void ReturnToPool()
+    {
+        // 부활 타이머 돌리고 오브젝트는 풀로 회수
+        BattleManager.Instance.RespawnPlayer(this);
+        PlayerPoolManager.ReturnToPool(this.gameObject);
     }
 }

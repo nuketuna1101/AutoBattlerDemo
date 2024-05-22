@@ -20,18 +20,17 @@ public abstract class Monster : MonoBehaviour
     public float trackSpeed = 1.0f;
     public Animator anim;
     public SpriteRenderer spriter;
-
     public IMonsterState myState;
-
-    protected virtual void Start()
+    
+    protected virtual void Awake()
     {
         anim = this.GetComponent<Animator>();
         spriter = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
-        //
+    }
+    private void OnEnable()
+    {
         InitStatFromSO();
-        //
         BattleManager.Instance.RegisterMonster(this);
-        //
         TransitionState(new MIdleState(this));
     }
     protected void InitStatFromSO()
@@ -65,19 +64,26 @@ public abstract class Monster : MonoBehaviour
     public virtual void BeAttacked(float damage)
     {
         health -= damage;
-        SetAnimTrigger("BeAttacked");
-        if (health <= 0)
+        if (health > 0)
+        {
+            SetAnimTrigger("BeAttacked");
+        }
+        else
+        {
             Die();
+            // 이미 죽은 플레이어에 대한 몬스터들의 로직 방지. 바로 배틀에서 제외시켜주기.
+            BattleManager.Instance.DeregisterMonster(this);
+        }
     }
-
-
     protected virtual void Die()
     {
         SetAnimTrigger("Death");
-        this.TransitionState(new MDeathState(this));
+        //this.TransitionState(new MDeathState(this));
     }
     public void ReturnToPool()
     {
-        //MonsterPoolManager.ReturnToPool(this.gameObject);
+        // 부활 타이머 돌리고 오브젝트는 풀로 회수
+        BattleManager.Instance.DeregisterMonster(this);
+        MonsterPoolManager.ReturnToPool(this.gameObject);
     }
 }

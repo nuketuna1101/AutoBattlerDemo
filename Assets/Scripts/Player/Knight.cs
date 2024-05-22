@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Knight : Player
 {
+    public override PlayerClass playerClass => PlayerClass.Knight;
+
     protected override void CastSkill()
     {
         Monster targetMonster = myState.TargetMonster;

@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class MDeathState : IMonsterState
 {
+    /// <summary>
+    /// 사망 처리를 위해 만들었던 death state이나, 로직을 변경함에 따라 쓰이지 않을 legacy 코드. 하지만 임시 백업.
+    /// </summary>
     private Monster monster;
     private Player targetPlayer; public Player TargetPlayer { get { return targetPlayer; } }
     private Coroutine deathCoroutine;

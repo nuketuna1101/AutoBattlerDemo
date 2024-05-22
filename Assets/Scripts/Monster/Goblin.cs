@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Goblin : Monster
 {
+    /*
     protected override void Start()
     {
         anim = this.transform.GetChild(0).GetComponent<Animator>();
@@ -11,6 +12,12 @@ public class Goblin : Monster
         InitStatFromSO();
         BattleManager.Instance.RegisterMonster(this);
         TransitionState(new MIdleState(this));
+    }
+    */
+    protected void Awake()
+    {
+        anim = this.transform.GetChild(0).GetComponent<Animator>();
+        spriter = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
     }
     public override void BasicAttack()
     {

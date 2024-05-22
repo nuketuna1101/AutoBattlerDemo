@@ -40,7 +40,9 @@ public class PAttackState : IPlayerState
         {
             yield return null;
             // 공격타겟 계속 감지. 없으면 idle로 전환.
-            if (targetMonster == null || !targetMonster.gameObject.activeInHierarchy)
+            if (targetMonster == null 
+                || !targetMonster.gameObject.activeInHierarchy 
+                || !BattleManager.Instance.isExistingMonster(targetMonster))
             {
                 DebugOpt.Log("EscapeRoutine called");
                 player.TransitionState(new PIdleState(player));

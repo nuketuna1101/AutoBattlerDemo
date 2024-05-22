@@ -38,7 +38,9 @@ public class MAttackState : IMonsterState
         {
             yield return null;
             // 공격타겟 계속 감지. 없으면 idle로 전환.
-            if (targetPlayer == null || !targetPlayer.gameObject.activeInHierarchy)
+            if (targetPlayer == null 
+                || !targetPlayer.gameObject.activeInHierarchy 
+                || !BattleManager.Instance.isExistingPlayer(targetPlayer))
             {
                 monster.TransitionState(new MIdleState(monster));
                 yield break;
