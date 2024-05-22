@@ -4,6 +4,7 @@ using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 using UnityEngine.TextCore.Text;
 using static UnityEngine.RuleTile.TilingRuleOutput;
+using System.Threading;
 
 public class PMoveState : IPlayerState
 {
@@ -31,7 +32,7 @@ public class PMoveState : IPlayerState
         {
             DebugOpt.Log("MoveState");
             Vector2 direction = (targetMonster.transform.position - player.transform.position).normalized;
-            // flip logic ÇÊ¿ä
+            player.transform.rotation = Quaternion.Euler(0, (direction.x >= 0 ? 180 : 0), 0);
             player.transform.position = Vector2.MoveTowards(player.transform.position, targetMonster.transform.position, player.trackSpeed * Time.deltaTime);
             float distance = Vector2.Distance(player.transform.position, targetMonster.transform.position);
             if (distance <= player.attackRange)

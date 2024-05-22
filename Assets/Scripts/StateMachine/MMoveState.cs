@@ -30,7 +30,7 @@ public class MMoveState : IMonsterState
         while (true)
         {
             Vector2 direction = (targetPlayer.transform.position - monster.transform.position).normalized;
-            // flip logic ÇÊ¿ä
+            monster.transform.rotation = Quaternion.Euler(0, (direction.x >= 0 ? 0 : 180), 0);
             monster.transform.position = Vector2.MoveTowards(monster.transform.position, targetPlayer.transform.position, monster.trackSpeed * Time.deltaTime);
             float distance = Vector2.Distance(monster.transform.position, targetPlayer.transform.position);
             if (distance <= monster.attackRange)

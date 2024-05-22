@@ -40,15 +40,24 @@ public class BattleManager : Singleton<BattleManager>
     public void AttackFromPlayerToMonster(Player player, Monster monster, float damage)
     {
         if (player == null || monster == null)    return;
-        
         monster.BeAttacked(damage);
     }
 
     public void AttackFromMonsterToPlayer(Monster monster, Player player, float damage)
     {
         if (player == null || monster == null) return;
-
         player.BeAttacked(damage);
+    }
+
+    private void KnockBackFromPlayerToMonster(Player player, Monster monster)
+    {
+        Vector3 direction = (monster.transform.position - player.transform.position).normalized;
+        monster.transform.position = monster.transform.position + direction * 0.25f;
+    }
+    public void KnockBackFromMonsterToPlayer(Monster monster, Player player)
+    {
+        Vector3 direction = (player.transform.position - monster.transform.position).normalized;
+        player.transform.position = player.transform.position + direction * 0.25f;
     }
 
     // 임시 범위 공격용
