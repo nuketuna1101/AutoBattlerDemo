@@ -23,7 +23,7 @@ public abstract class Player : MonoBehaviour
     public float maxHealth;
 
     [Header("Tracking")]
-    public float sightRange = 5.0f;
+    public float sightRange = 8.0f;
     public float trackSpeed = 1.0f;
 
     [Header("Main Components")]

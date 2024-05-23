@@ -167,8 +167,7 @@ MonoBehaviour:
   monsterStatsSO: {fileID: 11400000, guid: ef702dd5404a6c74bb2be03ed4db625f, type: 2}
   attackCooltime: 0
   attackRange: 1
-  sightRange: 5
+  sightRange: 8
   trackSpeed: 1
   anim: {fileID: 0}
   spriter: {fileID: 0}
-  HPbarPrefab: {fileID: 656935628746477825, guid: 07b76e3d8bf45eb4abea4892c2c9b364, type: 3}

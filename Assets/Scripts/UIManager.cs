@@ -11,10 +11,14 @@ public class UIManager : Singleton<UIManager>
     /// </summary>
     public Sprite[] sprites = new Sprite[4];
     private Transform CharacterSlotsParent;
-    private Coroutine updateHPbarCoroutine;
+    [SerializeField]
+    private GameObject popupWindowPrefab;
+    private Queue<GameObject> readyQueue = new Queue<GameObject>();              // 아이템 풀로 이용할 큐
 
-    private void Awake()
+
+    private new void Awake()
     {
+        base.Awake();
         Canvas canvas = FindObjectOfType<Canvas>();
         CharacterSlotsParent = canvas.transform.GetChild(0).GetChild(1).transform;
         for(int i = 0; i < 4; i++)
@@ -25,24 +29,36 @@ public class UIManager : Singleton<UIManager>
             Slider slider = slot.GetChild(3).GetComponent<Slider>();
             slider.maxValue = BattleManager.Instance.Players[i].maxHealth;
             slider.value = BattleManager.Instance.Players[i].health;
-            Debug.Log("BattleManager.Instance.Players[i] : " + (BattleManager.Instance.Players[i] == null));
         }
+        InitPopupWindow();
     }
-
-    private IEnumerator UpdateHPbarRoutine()
+    private void InitPopupWindow()
     {
-        // 체력바 HP UI가 오브젝트 따라다니는 코루틴. 그리고 현재 체력에 따라 슬라이더 업데이트
-        while (true)
-        {
-            yield return null;
-            for (int i = 0; i < 4; i++)
-            {
-                //if (BattleManager.Instance.players)
-
-                Transform slot = CharacterSlotsParent.GetChild(i).transform;
-                Slider slider = slot.GetChild(3).GetComponent<Slider>();
-                //slider.value = 
-            }
-        }
+        var obj = Instantiate(popupWindowPrefab);
+        obj.gameObject.SetActive(false);
+        obj.transform.SetParent(transform);
+        readyQueue.Enqueue(obj);
+    }
+    public GameObject GetPopupWindow()
+    {
+        if (readyQueue.Count <= 0) return null;
+        var obj = readyQueue.Dequeue();
+        obj.transform.position = Camera.main.WorldToScreenPoint(Vector3.zero);
+        Canvas canvas = FindObjectOfType<Canvas>();
+        obj.transform.SetParent(canvas.transform);
+        obj.gameObject.SetActive(true);
+        return obj;
+    }
+    public void RemovePopupWindow(GameObject obj)
+    {
+        obj.gameObject.SetActive(false);
+        obj.transform.SetParent(transform);
+        readyQueue.Enqueue(obj);
+    }
+    public void ShowPopupWindow(string msg)
+    {
+        DebugOpt.Log("UIManager : ShowPopupWindow");
+        var obj = GetPopupWindow();
+        obj.transform.GetChild(0).GetComponent<TMP_Text>().text = string.Format("{0}", msg);
     }
 }

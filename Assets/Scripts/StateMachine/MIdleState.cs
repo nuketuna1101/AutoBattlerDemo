@@ -26,6 +26,8 @@ public class MIdleState : IMonsterState
     {
         while (true)
         {
+            DebugOpt.Log(monster.name + "  : IdleRoutine : is on going");
+
             Player player = BattleManager.Instance.FindNearestPlayer(monster);
             if (player != null)
             {

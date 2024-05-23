@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using static UnityEditor.Experimental.GraphView.GraphView;
+using static UnityEditor.PlayerSettings;
 
 public class BattleManager : Singleton<BattleManager>
 {   
@@ -21,11 +23,13 @@ public class BattleManager : Singleton<BattleManager>
     }
     public void RegisterPlayer(Player player)
     {
+        DebugOpt.Log("BattleManager : RegisterPlayer : " + (player == null) + " :: " + (int)player.playerClass + " :: " + player.name);
         if (player == null) return;
         players[(int)player.playerClass] = player;
     }
     public void DeregisterMonster(Monster monster)
     {
+        DebugOpt.Log("BattleManager : DeregisterMonster : " + monster.name);
         monsters.Remove(monster);
     }
     public void DeregisterPlayer(Player player)
@@ -40,6 +44,25 @@ public class BattleManager : Singleton<BattleManager>
     public bool isExistingMonster(Monster monster)
     {
         return (monsters.Contains(monster));
+    }
+    public bool isAnyPlayerAlive()
+    {
+        // 한 명이라도 플레이어 캐릭터 생존해있는지
+        foreach (Player player in players)
+        {
+            if (player != null) return true;
+        }
+        return false;
+    }
+    public bool isAllMonstersCleared()
+    {
+        // 한 명이라도 플레이어 캐릭터 생존해있는지
+        return monsters.Count == 0;
+    }
+    public int test()
+    {
+        return monsters.Count;
+
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,6 +84,7 @@ public class BattleManager : Singleton<BattleManager>
         // 범위공격: skill Range 내 모든 monster 검색해서
         foreach (Monster monster in monsters)
         {
+            if (monster == null) continue;
             if (isInArea(monster, player.transform.position, skillRange))
                 monster.BeAttacked(damage);
         }
@@ -124,6 +148,8 @@ public class BattleManager : Singleton<BattleManager>
         Monster nearest = null;
         foreach (Monster monster in monsters)
         {
+            if (monster == null) continue;
+
             float distanceToPlayer = Vector2.Distance(monster.transform.position, player.transform.position);
             if (distanceToPlayer > player.sightRange) continue; // 사전 필터링
 
@@ -145,6 +171,137 @@ public class BattleManager : Singleton<BattleManager>
         float distance = Vector2.Distance(player.transform.position, centerPoint);
         return (distance <= range);
     }
+    private Player GetPlayerLeftmost()
+    {
+        Player leftmostPlayer = null;
+        foreach (Player player in players)
+        {
+            if (player == null) continue;
+
+            if (leftmostPlayer == null) leftmostPlayer = player;
+            else
+            {
+                Vector3 curPos = player.transform.position;
+                Vector3 leftPos = leftmostPlayer.transform.position;
+                if (curPos.x < leftPos.x)
+                {
+                    leftmostPlayer = player;
+                }
+            }
+        }
+        return leftmostPlayer;
+    }
+    private Player GetPlayerRightmost()
+    {
+        Player rightmostPlayer = null;
+        foreach (Player player in players)
+        {
+            if (player == null) continue;
+
+            if (rightmostPlayer == null) rightmostPlayer = player;
+            else
+            {
+                Vector3 curPos = player.transform.position;
+                Vector3 leftPos = rightmostPlayer.transform.position;
+                if (curPos.x < leftPos.x)
+                {
+                    rightmostPlayer = player;
+                }
+            }
+        }
+        return rightmostPlayer;
+    }
+    public Vector3 SpawnOnRandomPosition(float minDistance, float maxDistance)
+    {
+        int flag = Random.Range(0, 2);
+        if (flag == 0) return SpawnOnRandomLeftmost(minDistance, maxDistance);
+        else return SpawnOnRandomRightmost(minDistance, maxDistance);
+    }
+    private Vector3 SpawnOnRandomLeftmost(float minDistance, float maxDistance)
+    {
+        // 플레이어들 각각에 대해 minDistance 이상 maxDistance 이하 거리에 떨어진 랜덤 좌표 반환
+        // 거의 찾지 못해 무한대기가 일어나기에 레거시 코드는 폐기.
+        Vector3 randomPosition = Vector3.zero;
+        bool isValid = false;
+        Transform leftmostPlayerTransform = GetPlayerLeftmost().transform;
+        while (!isValid)
+        {
+            randomPosition = new Vector3(
+                Random.Range((-1) * maxDistance, 0),
+                Random.Range((-1) * maxDistance, maxDistance),
+                0.0f
+            );
+            isValid = true;
+
+            float distance = Vector3.Distance(Vector3.zero, randomPosition);
+            if (!(distance >= minDistance && distance <= maxDistance))
+            {
+                isValid = false;
+                break;
+            }
+        }
+        Vector3 result = new Vector3(randomPosition.x + leftmostPlayerTransform.position.x,
+            randomPosition.y + leftmostPlayerTransform.position.y, 0);
+        return result;
+    }
+    private Vector3 SpawnOnRandomRightmost(float minDistance, float maxDistance)
+    {
+        // 플레이어들 각각에 대해 minDistance 이상 maxDistance 이하 거리에 떨어진 랜덤 좌표 반환
+        // 거의 찾지 못해 무한대기가 일어나기에 레거시 코드는 폐기.
+        Vector3 randomPosition = Vector3.zero;
+        bool isValid = false;
+        Transform rightmostPlayerTransform = GetPlayerRightmost().transform;
+        while (!isValid)
+        {
+            randomPosition = new Vector3(
+                Random.Range(0, maxDistance),
+                Random.Range((-1) * maxDistance, maxDistance),
+                0.0f
+            );
+            isValid = true;
+
+            float distance = Vector3.Distance(Vector3.zero, randomPosition);
+            if (!(distance >= minDistance && distance <= maxDistance))
+            {
+                isValid = false;
+                break;
+            }
+        }
+        Vector3 result = new Vector3(randomPosition.x + rightmostPlayerTransform.position.x,
+            randomPosition.y + rightmostPlayerTransform.position.y, 0);
+        return result;
+    }
+
+    public Vector3 SpawnOnRandomPosition_Legacy(float minDistance, float maxDistance)
+    {
+        // 플레이어들 각각에 대해 minDistance 이상 maxDistance 이하 거리에 떨어진 랜덤 좌표 반환
+        // 거의 찾지 못해 무한대기가 일어나기에 레거시 코드는 폐기.
+        Vector3 randomPosition = Vector3.zero;
+        bool isValid = false;
+        while (!isValid)
+        {
+            randomPosition = new Vector3(
+                Random.Range(-10, 11),
+                Random.Range(-10, 11),
+                0.0f
+            );
+            isValid = true;
+            foreach (Player player in players)
+            {
+                if (player == null) continue;
+
+                float distance = Vector3.Distance(player.transform.position, randomPosition);
+                if (!(distance >= minDistance && distance <=  maxDistance))
+                {
+                    isValid = false;
+                    break;
+                }
+            }
+        }
+        return randomPosition;
+    }
+
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /// <summary>
@@ -167,30 +324,12 @@ public class BattleManager : Singleton<BattleManager>
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-    // 임시 빅토리 코드
     public void PlayerVictory()
     {
         DebugOpt.Log("BattleManager:  PlayerVictory");
         foreach (var player in players)
         {
             player.SetAnimTrigger("Victory");
-        }
-    }
-    public void KillPlayers()
-    {
-        DebugOpt.Log("BattleManager:  KillPlayers");
-        foreach (var player in players)
-        {
-            player.SetAnimTrigger("Death");
-        }
-    }
-    public void PlayersCastSkill()
-    {
-        DebugOpt.Log("BattleManager:  PlayersCastSkill");
-        foreach (var player in players)
-        {
-            player.SetAnimTrigger("CastSkill");
         }
     }
 }

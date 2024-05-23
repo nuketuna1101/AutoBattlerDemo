@@ -29,7 +29,22 @@ public class MonsterPoolManager : Singleton<MonsterPoolManager>
     }
     public static GameObject GetFromPool()
     {
-        // 요청 시 풀에 있는 오브젝트를 할당해준다.
+        // 원래는 초기 풀사이즈보다 더 필요해서 요청하면 새로 생성하여 추가하지만,
+        // 현재 게임 환경에서는 한 씬에서 5개의 몬스터만 존재하도록 추가 생성은 없음
+        if (Instance.pool.Count > 0)
+        {
+            var obj = Instance.pool.Dequeue();
+            obj.transform.SetParent(null);
+            obj.gameObject.SetActive(true);
+            return obj;
+        }
+        return null;
+    }
+
+    public static GameObject GetFromPool_LEGACY()       
+    {
+        // 원래는 초기 풀사이즈보다 더 필요해서 요청하면 새로 생성하여 추가하지만,
+        // 현재 게임 환경에서는 한 씬에서 5개의 몬스터만 존재하도록 추가 생성은 없음
         if (Instance.pool.Count > 0)
         {
             var obj = Instance.pool.Dequeue();
@@ -39,13 +54,13 @@ public class MonsterPoolManager : Singleton<MonsterPoolManager>
         }
         else
         {
-            // 가진 풀보다 더 필요하면, 풀을 늘려 새로 생성하여 이용
             var newObj = Instance.CreateObj();
             newObj.gameObject.SetActive(true);
             newObj.transform.SetParent(null);
             return newObj;
         }
     }
+
     public static void ReturnToPool(GameObject obj)
     {
         // 오브젝트 비활성화시키고 다시 풀로 복귀시키기

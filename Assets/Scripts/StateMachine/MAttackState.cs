@@ -42,6 +42,7 @@ public class MAttackState : IMonsterState
                 || !targetPlayer.gameObject.activeInHierarchy 
                 || !BattleManager.Instance.isExistingPlayer(targetPlayer))
             {
+                targetPlayer = null;
                 monster.TransitionState(new MIdleState(monster));
                 yield break;
             }
@@ -54,6 +55,7 @@ public class MAttackState : IMonsterState
             }
             else if (distance > monster.sightRange)
             {
+                targetPlayer = null;
                 monster.TransitionState(new MIdleState(monster));
                 yield break;
             }

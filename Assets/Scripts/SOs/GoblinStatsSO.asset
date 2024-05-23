@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GoblinStatsSO
   m_EditorClassIdentifier: 
   respawnCycle: 5
-  health: 500
+  health: 10
   attackDamage: 10
   attackRange: 1
   attackCooltime: 1

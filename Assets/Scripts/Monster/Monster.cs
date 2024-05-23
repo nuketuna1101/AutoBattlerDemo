@@ -18,7 +18,7 @@ public abstract class Monster : MonoBehaviour
     protected float maxHealth;
 
     [Header("Tracking")]
-    public float sightRange = 5.0f;
+    public float sightRange = 8.0f;
     public float trackSpeed = 1.0f;
 
     [Header("Main Components")]

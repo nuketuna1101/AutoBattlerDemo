@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class PlayerHPbarPoolManager : Singleton<PlayerHPbarPoolManager>
+public class HPbarPoolManager : Singleton<HPbarPoolManager>
 {
     /// <summary>
     /// 몬스터에게 달아줄 HP 체력바 UI
@@ -11,11 +11,12 @@ public class PlayerHPbarPoolManager : Singleton<PlayerHPbarPoolManager>
     [SerializeField]
     private GameObject prefab;                                  // 오브젝트 프리팹
     [SerializeField]
-    private const int initPoolSize = 4;                           // 초기 풀 사이즈 정의
+    private const int initPoolSize = 5;                           // 초기 풀 사이즈 정의
     Queue<GameObject> pool = new Queue<GameObject>();              // 아이템 풀로 이용할 큐
-
-    private void Awake()
+    
+    private new void Awake()
     {
+        base.Awake();
         InitPool();
     }
     public void InitPool()
@@ -44,8 +45,8 @@ public class PlayerHPbarPoolManager : Singleton<PlayerHPbarPoolManager>
         {
             // 가진 풀보다 더 필요하면, 풀을 늘려 새로 생성하여 이용
             var newObj = Instance.CreateObj();
-            newObj.gameObject.SetActive(true);
             newObj.transform.SetParent(null);
+            newObj.gameObject.SetActive(true);
             return newObj;
         }
     }

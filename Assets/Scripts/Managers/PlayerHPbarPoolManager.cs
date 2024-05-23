@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class HPbarPoolManager : Singleton<HPbarPoolManager>
+public class PlayerHPbarPoolManager : Singleton<PlayerHPbarPoolManager>
 {
     /// <summary>
     /// 몬스터에게 달아줄 HP 체력바 UI
@@ -11,11 +12,12 @@ public class HPbarPoolManager : Singleton<HPbarPoolManager>
     [SerializeField]
     private GameObject prefab;                                  // 오브젝트 프리팹
     [SerializeField]
-    private const int initPoolSize = 5;                           // 초기 풀 사이즈 정의
+    private const int initPoolSize = 4;                           // 초기 풀 사이즈 정의
     Queue<GameObject> pool = new Queue<GameObject>();              // 아이템 풀로 이용할 큐
 
-    private void Awake()
+    private new void Awake()
     {
+        base.Awake();
         InitPool();
     }
     public void InitPool()
